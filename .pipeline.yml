@@ -39,7 +39,7 @@ stages:
         repository: https://github.com/ViaductCI/hello-world-rust.git
         branch: main
         commands:
-          - ./deploy.sh
+          - "./deploy.sh"
         inputs:
           - name: hello_world_binary
             value: ${{Build.Compile.outputs.hello_world_binary}}
@@ -53,10 +53,10 @@ stages:
         repository: https://github.com/ViaductCI/hello-world-rust.git
         branch: main
         commands:
-          - echo "Deployment package: $DEPLOYMENT_PACKAGE" > notification.txt
-          - echo "Unit test results: $UNIT_TEST_RESULTS" >> notification.txt
-          - echo "Integration test results: $INTEGRATION_TEST_RESULTS" >> notification.txt
-          - echo "Notification sent: Hello World Rust pipeline completed successfully!" >> notification.txt
+          - 'echo "Deployment package: $DEPLOYMENT_PACKAGE" > notification.txt'
+          - 'echo "Unit test results: $UNIT_TEST_RESULTS" >> notification.txt'
+          - 'echo "Integration test results: $INTEGRATION_TEST_RESULTS" >> notification.txt'
+          - 'echo "Notification sent: Hello World Rust pipeline completed successfully!" >> notification.txt'
         inputs:
           - name: deployment_package
             value: ${{Deploy.Create Deployment Package.outputs.deployment_package}}
