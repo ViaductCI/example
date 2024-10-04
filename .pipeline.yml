@@ -1,39 +1,69 @@
-name: My CI/CD Pipeline
+name: Hello World Rust CI/CD Pipeline
 stages:
   - name: Build
     jobs:
       - name: Compile
-        repository: https://github.com/user/repo.git
+        repository: https://github.com/ViaductCI/hello-world-rust.git
         branch: main
         commands:
           - cargo build --release
-        inputs:
-          - name: config.toml
-            value: |
-              [build]
-              target = "x86_64-unknown-linux-gnu"
         outputs:
-          - name: binary
-            path: target/release/my_app
+          - name: hello_world_binary
+            path: target/release/hello-world-rust
 
   - name: Test
     jobs:
       - name: Unit Tests
-        repository: https://github.com/user/repo.git
+        repository: https://github.com/ViaductCI/hello-world-rust.git
         branch: main
         commands:
-          - cargo test
+          - cargo test --lib
+          - echo "Unit tests passed successfully" > unit_test_results.txt
         outputs:
-          - name: test_results
-            path: test_results.txt
+          - name: unit_test_results
+            path: unit_test_results.txt
+
+      - name: Integration Tests
+        repository: https://github.com/ViaductCI/hello-world-rust.git
+        branch: main
+        commands:
+          - cargo test --test integration_test
+          - echo "Integration tests passed successfully" > integration_test_results.txt
+        outputs:
+          - name: integration_test_results
+            path: integration_test_results.txt
 
   - name: Deploy
     jobs:
-      - name: Push to Production
-        repository: https://github.com/user/deploy-scripts.git
+      - name: Create Deployment Package
+        repository: https://github.com/ViaductCI/hello-world-rust.git
         branch: main
         commands:
           - ./deploy.sh
         inputs:
-          - name: app_binary
-            value: ${{Build.Compile.outputs.binary}}
+          - name: hello_world_binary
+            value: ${{Build.Compile.outputs.hello_world_binary}}
+        outputs:
+          - name: deployment_package
+            path: hello_world_deployment.tar.gz
+
+  - name: Notify
+    jobs:
+      - name: Send Notification
+        repository: https://github.com/ViaductCI/hello-world-rust.git
+        branch: main
+        commands:
+          - echo "Deployment package: $DEPLOYMENT_PACKAGE" > notification.txt
+          - echo "Unit test results: $UNIT_TEST_RESULTS" >> notification.txt
+          - echo "Integration test results: $INTEGRATION_TEST_RESULTS" >> notification.txt
+          - echo "Notification sent: Hello World Rust pipeline completed successfully!" >> notification.txt
+        inputs:
+          - name: deployment_package
+            value: ${{Deploy.Create Deployment Package.outputs.deployment_package}}
+          - name: unit_test_results
+            value: ${{Test.Unit Tests.outputs.unit_test_results}}
+          - name: integration_test_results
+            value: ${{Test.Integration Tests.outputs.integration_test_results}}
+        outputs:
+          - name: notification
+            path: notification.txt
